@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // List of major cities
+   
     const CITIES = [
         { "name": "New York", "lat": 40.7128, "lon": -74.0060 },
         { "name": "London", "lat": 51.5074, "lon": -0.1278 },
@@ -20,26 +20,27 @@ document.addEventListener('DOMContentLoaded', () => {
         { "name": "Istanbul", "lat": 41.0082, "lon": 28.9784 },
         { "name": "Seoul", "lat": 37.5665, "lon": 126.9780 },
         { "name": "Shanghai", "lat": 31.2304, "lon": 121.4737 },
-        { "name": "Berlin", "lat": 52.5200, "lon": 13.4050 }
+        { "name": "Berlin", "lat": 52.5200, "lon": 13.4050 },
+        {"name": "Shrirampur","lat": 19.6195,"lon": 74.6567}
     ];
 
-    // Initialize Map
+ 
     const map = L.map('map', {
         zoomControl: false,
         attributionControl: false
     }).setView([20, 0], 2);
 
-    // Add Dark Mode Tile Layer
+    
     L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(map);
 
-    // Fetch AQI Data
+ 
     fetchAQIData();
 
-    // Search Functionality
+    
     const searchInput = document.getElementById('search-input');
     const searchBtn = document.getElementById('search-btn');
 
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
         loadingElement.querySelector('p').textContent = `Searching for "${query}"...`;
 
         try {
-            // 1. Geocode
+         
             const geoUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=1&language=en&format=json`;
             const geoRes = await fetch(geoUrl);
             const geoData = await geoRes.json();
@@ -71,20 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const lon = location.longitude;
             const name = `${location.name}, ${location.country || ''}`;
 
-            // 2. Get AQI
+         
             const aqiUrl = `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=us_aqi`;
             const aqiRes = await fetch(aqiUrl);
             const aqiData = await aqiRes.json();
 
             const aqi = aqiData.current.us_aqi;
 
-            // Fly to location
+           
             map.flyTo([lat, lon], 10, {
                 animate: true,
                 duration: 1.5
             });
 
-            // Add marker
+          
             renderMarkers([{
                 name: name,
                 lat: lat,
@@ -92,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 aqi: aqi
             }]);
 
-            // Clear input
+           
             searchInput.value = '';
 
         } catch (error) {
@@ -119,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const data = await response.json();
 
-            // Parse Open-Meteo response (list of objects for multiple points)
+           
             let results = [];
             if (Array.isArray(data)) {
                 results = data.map((item, index) => ({
@@ -129,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     aqi: item.current.us_aqi
                 }));
             } else {
-                // Fallback if API behavior changes or single point (unlikely here)
+               
                 results = [{
                     name: CITIES[0].name,
                     lat: CITIES[0].lat,
@@ -140,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             renderMarkers(results);
 
-            // Hide loading screen
+        
             loadingElement.classList.add('hidden');
 
         } catch (error) {
@@ -155,7 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const color = getAQIColor(city.aqi);
                 const status = getAQIStatus(city.aqi);
 
-                // Create custom marker icon
+              
                 const customIcon = L.divIcon({
                     className: 'custom-div-icon',
                     html: `<div style="background-color: ${color}; width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 10px ${color}; border: 2px solid #fff;"></div>`,
@@ -163,7 +164,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     iconAnchor: [6, 6]
                 });
 
-                // Add marker to map
+                
                 const marker = L.marker([city.lat, city.lon], { icon: customIcon }).addTo(map);
 
                 // Bind popup
@@ -181,12 +182,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function getAQIColor(aqi) {
-        if (aqi <= 50) return '#00e400'; // Good
-        if (aqi <= 100) return '#ffff00'; // Moderate
-        if (aqi <= 150) return '#ff7e00'; // Unhealthy for Sensitive Groups
-        if (aqi <= 200) return '#ff0000'; // Unhealthy
-        if (aqi <= 300) return '#8f3f97'; // Very Unhealthy
-        return '#7e0023'; // Hazardous
+        if (aqi <= 50) return '#00e400'; 
+        if (aqi <= 100) return '#ffff00'; 
+        if (aqi <= 150) return '#ff7e00'; 
+        if (aqi <= 200) return '#ff0000'; 
+        if (aqi <= 300) return '#8f3f97'; 
+        return '#7e0023'; 
     }
 
     function getAQIStatus(aqi) {

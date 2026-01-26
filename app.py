@@ -4,7 +4,7 @@ import webbrowser
 
 app = Flask(__name__)
 
-# List of major cities with their coordinates (Latitude, Longitude)
+
 CITIES = [
     {"name": "New York", "lat": 40.7128, "lon": -74.0060},
     {"name": "London", "lat": 51.5074, "lon": -0.1278},
@@ -25,7 +25,9 @@ CITIES = [
     {"name": "Istanbul", "lat": 41.0082, "lon": 28.9784},
     {"name": "Seoul", "lat": 37.5665, "lon": 126.9780},
     {"name": "Shanghai", "lat": 31.2304, "lon": 121.4737},
-    {"name": "Berlin", "lat": 52.5200, "lon": 13.4050}
+    {"name": "Berlin", "lat": 52.5200, "lon": 13.4050},
+    {"name": "Shrirampur", "lat": 19.6195, "lon": 74.6567}
+
 ]
 
 @app.route('/')
@@ -36,21 +38,18 @@ def index():
 def get_aqi():
     aqi_data = []
     
-    # Open-Meteo allows fetching multiple points in one request, but for simplicity and clarity 
-    # in this demo, we'll iterate or construct a bulk request if possible.
-    # Actually, Open-Meteo Air Quality API supports list of lat/lon.
+    
     
     lats = [city["lat"] for city in CITIES]
     lons = [city["lon"] for city in CITIES]
     
-    # Construct URL for bulk request
-    # Example: https://air-quality-api.open-meteo.com/v1/air-quality?latitude=52.52,48.85&longitude=13.41,2.35&current=us_aqi
+   
     
     url = "https://air-quality-api.open-meteo.com/v1/air-quality"
     params = {
         "latitude": ",".join(map(str, lats)),
         "longitude": ",".join(map(str, lons)),
-        "current": "us_aqi" # US AQI is a common standard
+        "current": "us_aqi" 
     }
     
     try:
@@ -58,15 +57,6 @@ def get_aqi():
         response.raise_for_status()
         data = response.json()
         
-        # Parse response. The API returns a list of results if multiple coordinates are provided.
-        # However, Open-Meteo structure for multiple points:
-        # It returns arrays in 'current' corresponding to the inputs.
-        # Wait, looking at Open-Meteo docs, for multiple points, it might return a list of objects OR arrays of values.
-        # Let's handle the standard single-object-with-arrays response if that's what it does, 
-        # OR a list of objects.
-        # Actually, for multiple points, it returns a list of response objects.
-        
-        # Let's verify this behavior. If it returns a list, we iterate.
         
         if isinstance(data, list):
             for i, item in enumerate(data):
@@ -94,7 +84,7 @@ def search_location():
         return jsonify({"error": "No query provided"}), 400
         
     try:
-        # 1. Geocode the location
+    
         geocoding_url = "https://geocoding-api.open-meteo.com/v1/search"
         geo_params = {"name": query, "count": 1, "language": "en", "format": "json"}
         
@@ -110,7 +100,7 @@ def search_location():
         lon = location["longitude"]
         name = f"{location['name']}, {location.get('country', '')}"
         
-        # 2. Get AQI for the location
+       
         aqi_url = "https://air-quality-api.open-meteo.com/v1/air-quality"
         aqi_params = {
             "latitude": lat,
